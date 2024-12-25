@@ -1,9 +1,37 @@
+
+// const express = require("express");
+// const cors = require("cors");
+// require("dotenv").config(); // Load environment variables
+
+// const port = process.env.PORT || 3000;
+// const app = express();
+
+// // Middleware
+// app.use(cors());
+// app.use(express.json());
+
+// // Routes
+// app.get("/", (req, res) => {
+//   res.send("Server is running!");
+// });
+
+// // Start Server
+// app.listen(port, (err) => {
+//   if (err) {
+//     console.error("Failed to start server:", err);
+//     process.exit(1);
+//   }
+//   console.log(`Server running on port ${port}`);
+// });
+
+
+
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ObjectId, ServerApiVersion } = require("mongodb");
 require("dotenv").config(); // Load environment variables
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 4000;
 const app = express();
 
 // Middleware
