@@ -53,6 +53,116 @@ async function run() {
       }
     });
 
+    // Server-side routes to handle booking and fetching reviews
+
+// POST endpoint to book a room
+// POST endpoint to book a room
+// app.post("/book-room", async (req, res) => {
+//   try {
+//     const { roomId, bookingDate, userId } = req.body; // Assume `userId` identifies the user
+
+//     // Check if the room is already booked
+//     const existingBooking = await bookingCollection.findOne({ roomId });
+//     if (existingBooking) {
+//       return res.status(400).json({ message: "This room is already booked." });
+//     }
+
+//     // Create a new booking
+//     const newBooking = {
+//       roomId,
+//       bookingDate,
+//       userId,
+//       createdAt: new Date(),
+//     };
+
+//     // Insert the booking data
+//     const result = await bookingCollection.insertOne(newBooking);
+
+//     // Mark the room as unavailable in the rooms collection
+//     await roomsCollection.updateOne(
+//       { id: roomId },
+//       { $set: { available: false } }
+//     );
+
+//     console.log("New booking:", newBooking);
+//     res.status(201).json({ success: true, message: "Room booked successfully.", booking: newBooking });
+//   } catch (error) {
+//     console.error("Error booking room:", error);
+//     res.status(500).json({ error: "Failed to book the room. Please try again later." });
+//   }
+// });
+
+// // GET endpoint to retrieve all booked rooms
+// app.get("/book-room", async (req, res) => {
+//   try {
+//     const bookings = await bookingCollection.find().toArray();
+//     res.status(200).json(bookings);
+//   } catch (error) {
+//     console.error("Error fetching bookings:", error);
+//     res.status(500).json({ error: "Failed to fetch bookings." });
+//   }
+// });
+
+
+
+
+// // POST endpoint to book a room
+// app.post("/book-room", async (req, res) => {
+//   try {
+//     const newBooking = req.body;
+
+//     // Check if the room is already booked
+//     const existingBooking = await bookingCollection.findOne({ roomId: newBooking.roomId });
+//     if (existingBooking) {
+//       return res.status(400).json({ message: "Room is already booked" });
+//     }
+
+//     // Insert the booking data
+//     const result = await bookingCollection.insertOne(newBooking);
+
+//     // Update room availability in the rooms collection
+//     await roomsCollection.updateOne(
+//       { id: newBooking.roomId },
+//       { $set: { available: false } }
+//     );
+
+//     console.log("New booking received:", newBooking);
+//     res.status(201).json({ roomId: newBooking.roomId, success: true });
+//   } catch (error) {
+//     console.error("Error booking room:", error);
+//     res.status(500).json({ error: "Failed to book room" });
+//   }
+// });
+
+// // GET endpoint to retrieve all booked rooms
+// app.get("/book-room", async (req, res) => {
+//   try {
+//     const bookings = await bookingCollection.find().toArray();
+//     res.status(200).json(bookings);
+//   } catch (error) {
+//     console.error("Error fetching bookings:", error);
+//     res.status(500).json({ error: "Failed to fetch bookings" });
+//   }
+// });
+
+
+
+    // Route to fetch a single room by ID
+    app.get("/rooms/:id", async (req, res) => {
+      try {
+        const roomId = req.params.id;
+        const room = await roomCollection.findOne({ _id: new ObjectId(roomId) });
+        if (room) {
+          res.status(200).json(room);
+        } else {
+          res.status(404).json({ error: "Room not found" });
+        }
+      } catch (error) {
+        console.error("Error fetching room:", error);
+        res.status(500).json({ error: "Failed to fetch room" });
+      }
+    });
+
   // post the booking data
     app.post("/book-room", async (req, res) => {
       const newBook = req.body;
@@ -260,24 +370,37 @@ app.get("/book-room", async (req, res) => {
 
 app.delete("/book-room/:id", async (req, res) => {
   const { id } = req.params;
-  console.log("Received ID to delete:", id); // Log the received ID
-
-  const query = { _id: new ObjectId(id) };
 
   try {
-    // Delete the visa application
+    const query = { _id: new ObjectId(id) };
     const result = await bookingCollection.deleteOne(query);
 
     if (result.deletedCount === 0) {
-      return res.status(404).json({ message: "Visa application not found" });
+      return res.status(404).json({ message: "Booking not found." });
     }
 
-    res.status(200).json({ message: "Visa application deleted successfully" });
+    res.status(200).json({ message: "Booking deleted successfully." });
   } catch (error) {
-    console.error("Error deleting visa application:", error);
-    res.status(500).json({
-      message: "An error occurred while deleting the visa application",
-    });
+    console.error("Error deleting booking:", error);
+    res.status(500).json({ message: "An error occurred during deletion." });
+  }
+});
+
+// Update booking date
+app.put("/book-room/update/:id", async (req, res) => {
+  const { id } = req.params;
+  const { newDate } = req.body;
+
+  try {
+    const index = bookings.findIndex((booking) => booking._id === id);
+    if (index === -1) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    bookings[index].bookingDate = newDate;
+    res.status(200).json({ message: "Booking date updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating booking date" });
   }
 });
 
