@@ -34,8 +34,13 @@ async function run() {
     console.log("Pinged your deployment successfully!");
 
     // Collections
-    const roomCollection = client.db("hotel-booking").collection("hotel");
-    const bookingCollection = client.db("hotel-booking").collection("book-room");
+    // const roomCollection = client.db("hotel-booking").collection("hotel");
+    // const bookingCollection = roomCollection.collection("book-room");
+
+
+    const db = client.db('hotel-booking')
+    const roomCollection  = db.collection('hotel')
+    const bookingCollection = db.collection('book-room')
 
     // Route to fetch all rooms
     app.get("/rooms", async (req, res) => {
@@ -55,6 +60,41 @@ async function run() {
       const result = await bookingCollection.insertOne(newBook); // Insert data into MongoDB
       res.send(result); // Respond with the result
       });
+
+
+
+// app.post("/book-room", async (req, res) => {
+//   const newBook = req.body;
+//   console.log("Received booking:", newBook);
+
+//   try {
+//     // Find the room by name and update its availability
+//     const roomName = newBook.roomName;  // Get room name from the request
+
+//     console.log(roomName);
+
+
+//     const updatedRoom = await bookingCollection.updateOne(
+//       { name: roomName },  // Find the room by its name
+//       { $set: { available: false } }  // Mark the room as unavailable
+//     );
+
+//     if (updatedRoom.modifiedCount === 0) {
+//       return res.status(400).send({ message: "Room not found or already booked." });
+//     }
+
+//     // Insert the booking details into the database
+//     const result = await bookingCollection.insertOne(newBook);
+
+//     res.status(200).send({ message: "Room booked successfully!", result });
+//   } catch (error) {
+//     console.error("Error booking the room:", error);
+//     res.status(500).send({ message: "There was an issue booking the room. Please try again." });
+//   }
+// });
+
+
+
 
 
 
@@ -212,6 +252,36 @@ app.get("/book-room", async (req, res) => {
         res.status(500).json({ message: "Error booking room" });
       }
     });
+
+
+
+    
+// DELETE route to delete a visa application by ID
+
+app.delete("/book-room/:id", async (req, res) => {
+  const { id } = req.params;
+  console.log("Received ID to delete:", id); // Log the received ID
+
+  const query = { _id: new ObjectId(id) };
+
+  try {
+    // Delete the visa application
+    const result = await bookingCollection.deleteOne(query);
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: "Visa application not found" });
+    }
+
+    res.status(200).json({ message: "Visa application deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting visa application:", error);
+    res.status(500).json({
+      message: "An error occurred while deleting the visa application",
+    });
+  }
+});
+
+
      
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
