@@ -1,31 +1,4 @@
 
-// const express = require("express");
-// const cors = require("cors");
-// require("dotenv").config(); // Load environment variables
-
-// const port = process.env.PORT || 3000;
-// const app = express();
-
-// // Middleware
-// app.use(cors());
-// app.use(express.json());
-
-// // Routes
-// app.get("/", (req, res) => {
-//   res.send("Server is running!");
-// });
-
-// // Start Server
-// app.listen(port, (err) => {
-//   if (err) {
-//     console.error("Failed to start server:", err);
-//     process.exit(1);
-//   }
-//   console.log(`Server running on port ${port}`);
-// });
-
-
-
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ObjectId, ServerApiVersion } = require("mongodb");
@@ -69,6 +42,7 @@ async function run() {
     const db = client.db('hotel-booking')
     const roomCollection  = db.collection('hotel')
     const bookingCollection = db.collection('book-room')
+    const  receivedCollection = db.collection('receives')
 
     // Route to fetch all rooms
     app.get("/rooms", async (req, res) => {
@@ -81,98 +55,7 @@ async function run() {
       }
     });
 
-    // Server-side routes to handle booking and fetching reviews
-
-// POST endpoint to book a room
-// POST endpoint to book a room
-// app.post("/book-room", async (req, res) => {
-//   try {
-//     const { roomId, bookingDate, userId } = req.body; // Assume `userId` identifies the user
-
-//     // Check if the room is already booked
-//     const existingBooking = await bookingCollection.findOne({ roomId });
-//     if (existingBooking) {
-//       return res.status(400).json({ message: "This room is already booked." });
-//     }
-
-//     // Create a new booking
-//     const newBooking = {
-//       roomId,
-//       bookingDate,
-//       userId,
-//       createdAt: new Date(),
-//     };
-
-//     // Insert the booking data
-//     const result = await bookingCollection.insertOne(newBooking);
-
-//     // Mark the room as unavailable in the rooms collection
-//     await roomsCollection.updateOne(
-//       { id: roomId },
-//       { $set: { available: false } }
-//     );
-
-//     console.log("New booking:", newBooking);
-//     res.status(201).json({ success: true, message: "Room booked successfully.", booking: newBooking });
-//   } catch (error) {
-//     console.error("Error booking room:", error);
-//     res.status(500).json({ error: "Failed to book the room. Please try again later." });
-//   }
-// });
-
-// // GET endpoint to retrieve all booked rooms
-// app.get("/book-room", async (req, res) => {
-//   try {
-//     const bookings = await bookingCollection.find().toArray();
-//     res.status(200).json(bookings);
-//   } catch (error) {
-//     console.error("Error fetching bookings:", error);
-//     res.status(500).json({ error: "Failed to fetch bookings." });
-//   }
-// });
-
-
-
-
-// // POST endpoint to book a room
-// app.post("/book-room", async (req, res) => {
-//   try {
-//     const newBooking = req.body;
-
-//     // Check if the room is already booked
-//     const existingBooking = await bookingCollection.findOne({ roomId: newBooking.roomId });
-//     if (existingBooking) {
-//       return res.status(400).json({ message: "Room is already booked" });
-//     }
-
-//     // Insert the booking data
-//     const result = await bookingCollection.insertOne(newBooking);
-
-//     // Update room availability in the rooms collection
-//     await roomsCollection.updateOne(
-//       { id: newBooking.roomId },
-//       { $set: { available: false } }
-//     );
-
-//     console.log("New booking received:", newBooking);
-//     res.status(201).json({ roomId: newBooking.roomId, success: true });
-//   } catch (error) {
-//     console.error("Error booking room:", error);
-//     res.status(500).json({ error: "Failed to book room" });
-//   }
-// });
-
-// // GET endpoint to retrieve all booked rooms
-// app.get("/book-room", async (req, res) => {
-//   try {
-//     const bookings = await bookingCollection.find().toArray();
-//     res.status(200).json(bookings);
-//   } catch (error) {
-//     console.error("Error fetching bookings:", error);
-//     res.status(500).json({ error: "Failed to fetch bookings" });
-//   }
-// });
-
+ 
 
 
     // Route to fetch a single room by ID
@@ -191,45 +74,38 @@ async function run() {
       }
     });
 
-  // post the booking data
-    app.post("/book-room", async (req, res) => {
-      const newBook = req.body;
-      console.log("Received new tutorial:",newBook);
-      const result = await bookingCollection.insertOne(newBook); // Insert data into MongoDB
-      res.send(result); // Respond with the result
-      });
+ 
+
+app.post("/book-room", async (req, res) => {
+  const newBooking = req.body;
+
+  console.log(newBooking);
 
 
+  try {
+    // Ensure required fields are provided
+    // if (!newBooking.roomId || !newBooking.userId || !newBooking.bookingDate) {
+    //   return res.status(400).json({ message: "Missing required fields." });
+    // }
 
-// app.post("/book-room", async (req, res) => {
-//   const newBook = req.body;
-//   console.log("Received booking:", newBook);
+    // Check if a booking with the same roomId already exists
+    const existingBooking = await bookingCollection.findOne({roomName: newBooking.roomName });
 
-//   try {
-//     // Find the room by name and update its availability
-//     const roomName = newBook.roomName;  // Get room name from the request
+    if (existingBooking) {
+      // If a booking with the same roomId exists, respond with an error message
+      return res.status(400).json({ message: "This room is already booked." });
+    }
 
-//     console.log(roomName);
+    // If no booking exists with the same roomId, insert the new booking
+    const result = await bookingCollection.insertOne(newBooking);
+    res.status(201).json({ message: "Room booked successfully!", result });
+  } catch (error) {
+    console.error("Error booking room:", error);
+    res.status(500).json({ message: "An error occurred while booking the room." });
+  }
+});
 
 
-//     const updatedRoom = await bookingCollection.updateOne(
-//       { name: roomName },  // Find the room by its name
-//       { $set: { available: false } }  // Mark the room as unavailable
-//     );
-
-//     if (updatedRoom.modifiedCount === 0) {
-//       return res.status(400).send({ message: "Room not found or already booked." });
-//     }
-
-//     // Insert the booking details into the database
-//     const result = await bookingCollection.insertOne(newBook);
-
-//     res.status(200).send({ message: "Room booked successfully!", result });
-//   } catch (error) {
-//     console.error("Error booking the room:", error);
-//     res.status(500).send({ message: "There was an issue booking the room. Please try again." });
-//   }
-// });
 
 
 
@@ -248,7 +124,7 @@ app.get("/book-room", async (req, res) => {
   }
 });
 
-// Server-side routes to handle booking and fetching reviews
+
 
 // POST endpoint to book a room
 // POST endpoint to book a room
@@ -358,39 +234,7 @@ app.get("/book-room", async (req, res) => {
       }
     });
 
-    // PATCH route to mark a room as booked
-    app.patch("/book-room/:id/book", async (req, res) => {
-      try {
-        const roomId = req.params.id;
-        const { bookingDate } = req.body;
-
-        const room = await bookingCollection.findOne({ _id: new ObjectId(roomId) });
-
-        if (!room) {
-          return res.status(404).json({ message: "Room not found" });
-        }
-
-        if (!room.isAvailable) {
-          return res.status(400).json({ message: "Room is already booked" });
-        }
-
-        const result = await bookingCollection.updateOne(
-          { _id: new ObjectId(roomId) },
-          {
-            $set: {
-              isAvailable: false,
-              bookingDate: bookingDate,
-            },
-          }
-        );
-
-        res.status(200).json({ message: "Room booked successfully", result });
-      } catch (error) {
-        console.error("Error booking room:", error);
-        res.status(500).json({ message: "Error booking room" });
-      }
-    });
-
+  
 
 
     
@@ -414,21 +258,79 @@ app.delete("/book-room/:id", async (req, res) => {
   }
 });
 
-// Update booking date
-app.put("/book-room/update/:id", async (req, res) => {
-  const { id } = req.params;
-  const { newDate } = req.body;
+
+
+//  Update Booking Date
+// app.put("book-room/:id", async (req, res) => {
+//   const { id } = req.params;
+//   const { bookingDate } = req.body;
+
+//   if (!bookingDate) {
+//     return res.status(400).json({ error: "Booking date is required." });
+//   }
+
+//   try {
+//     const result = await bookingsCollection.updateOne(
+//       { _id: new ObjectId(id) },
+//       { $set: { bookingDate } }
+//     );
+
+//     if (result.matchedCount === 0) {
+//       return res.status(404).json({ error: "Booking not found." });
+//     }
+
+//     res.json({ message: "Booking updated successfully." });
+//   } catch (error) {
+//     console.error("Error updating booking:", error);
+//     res.status(500).json({ error: "Failed to update booking." });
+//   }
+// });
+
+
+app.put("/book-room/:id", async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const options = { upsert: true };
+  const updatedLanguage = req.body;
+
+  const updateDoc = {
+      $set: {
+         
+          time: updatedLanguage.time,
+
+      },
+  };
 
   try {
-    const index = bookings.findIndex((booking) => booking._id === id);
-    if (index === -1) {
-      return res.status(404).json({ message: "Booking not found" });
-    }
-
-    bookings[index].bookingDate = newDate;
-    res.status(200).json({ message: "Booking date updated successfully" });
+      const result = await bookingCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
   } catch (error) {
-    res.status(500).json({ message: "Error updating booking date" });
+      console.error("Error updating tutorial:", error);
+      res.status(500).send({ error: "Failed to update the tutorial." });
+ }
+ });
+
+
+// Post a review
+app.post("/reviews/:roomId", (req, res) => {
+  try {
+    const rooms = readData();
+    const room = rooms.find((r) => r.id === parseInt(req.params.roomId));
+    if (!room) return res.status(404).json({ error: "Room not found." });
+
+    const newReview = {
+      username: req.body.username,
+      rating: req.body.rating,
+      comment: req.body.comment,
+      timestamp: new Date().toISOString(),
+    };
+
+    room.reviews.push(newReview);
+    writeData(rooms);
+
+    res.status(201).json(newReview);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to post review." });
   }
 });
 
