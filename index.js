@@ -97,6 +97,7 @@ app.post("/book-room", async (req, res) => {
     }
 
     // If no booking exists with the same roomId, insert the new booking
+    await roomCollection.updateOne({ roomName: newBooking.roomName }, { $set: { available: false } });
     const result = await bookingCollection.insertOne(newBooking);
     res.status(201).json({ message: "Room booked successfully!", result });
   } catch (error) {
@@ -291,18 +292,17 @@ app.put("/book-room/:id", async (req, res) => {
   const id = req.params.id;
   const filter = { _id: new ObjectId(id) };
   const options = { upsert: true };
-  const updatedLanguage = req.body;
+  const updatedData = req.body;
 
   const updateDoc = {
       $set: {
-         
-          time: updatedLanguage.time,
-
+        bookingDate: updatedData.time,
       },
   };
 
   try {
       const result = await bookingCollection.updateOne(filter, updateDoc, options);
+      console.log(result);
       res.send(result);
   } catch (error) {
       console.error("Error updating tutorial:", error);
