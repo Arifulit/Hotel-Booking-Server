@@ -1,4 +1,5 @@
 
+
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ObjectId, ServerApiVersion } = require("mongodb");
@@ -34,10 +35,7 @@ async function run() {
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment successfully!");
 
-    // Collections
-    // const roomCollection = client.db("hotel-booking").collection("hotel");
-    // const bookingCollection = roomCollection.collection("book-room");
-
+   
 
     const db = client.db('hotel-booking')
     const roomCollection  = db.collection('hotel')
@@ -83,10 +81,7 @@ app.post("/book-room", async (req, res) => {
 
 
   try {
-    // Ensure required fields are provided
-    // if (!newBooking.roomId || !newBooking.userId || !newBooking.bookingDate) {
-    //   return res.status(400).json({ message: "Missing required fields." });
-    // }
+   
 
     // Check if a booking with the same roomId already exists
     const existingBooking = await bookingCollection.findOne({roomName: newBooking.roomName });
@@ -108,11 +103,6 @@ app.post("/book-room", async (req, res) => {
 
 
 
-
-
-
-
-
 // get book data  
 
 app.get("/book-room", async (req, res) => {
@@ -124,98 +114,6 @@ app.get("/book-room", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch rooms" });
   }
 });
-
-
-
-// POST endpoint to book a room
-// POST endpoint to book a room
-// app.post("/book-room", async (req, res) => {
-//   try {
-//     const { roomId, bookingDate, userId } = req.body; // Assume `userId` identifies the user
-
-//     // Check if the room is already booked
-//     const existingBooking = await bookingCollection.findOne({ roomId });
-//     if (existingBooking) {
-//       return res.status(400).json({ message: "This room is already booked." });
-//     }
-
-//     // Create a new booking
-//     const newBooking = {
-//       roomId,
-//       bookingDate,
-//       userId,
-//       createdAt: new Date(),
-//     };
-
-//     // Insert the booking data
-//     const result = await bookingCollection.insertOne(newBooking);
-
-//     // Mark the room as unavailable in the rooms collection
-//     await roomsCollection.updateOne(
-//       { id: roomId },
-//       { $set: { available: false } }
-//     );
-
-//     console.log("New booking:", newBooking);
-//     res.status(201).json({ success: true, message: "Room booked successfully.", booking: newBooking });
-//   } catch (error) {
-//     console.error("Error booking room:", error);
-//     res.status(500).json({ error: "Failed to book the room. Please try again later." });
-//   }
-// });
-
-// // GET endpoint to retrieve all booked rooms
-// app.get("/book-room", async (req, res) => {
-//   try {
-//     const bookings = await bookingCollection.find().toArray();
-//     res.status(200).json(bookings);
-//   } catch (error) {
-//     console.error("Error fetching bookings:", error);
-//     res.status(500).json({ error: "Failed to fetch bookings." });
-//   }
-// });
-
-
-
-
-// // POST endpoint to book a room
-// app.post("/book-room", async (req, res) => {
-//   try {
-//     const newBooking = req.body;
-
-//     // Check if the room is already booked
-//     const existingBooking = await bookingCollection.findOne({ roomId: newBooking.roomId });
-//     if (existingBooking) {
-//       return res.status(400).json({ message: "Room is already booked" });
-//     }
-
-//     // Insert the booking data
-//     const result = await bookingCollection.insertOne(newBooking);
-
-//     // Update room availability in the rooms collection
-//     await roomsCollection.updateOne(
-//       { id: newBooking.roomId },
-//       { $set: { available: false } }
-//     );
-
-//     console.log("New booking received:", newBooking);
-//     res.status(201).json({ roomId: newBooking.roomId, success: true });
-//   } catch (error) {
-//     console.error("Error booking room:", error);
-//     res.status(500).json({ error: "Failed to book room" });
-//   }
-// });
-
-// // GET endpoint to retrieve all booked rooms
-// app.get("/book-room", async (req, res) => {
-//   try {
-//     const bookings = await bookingCollection.find().toArray();
-//     res.status(200).json(bookings);
-//   } catch (error) {
-//     console.error("Error fetching bookings:", error);
-//     res.status(500).json({ error: "Failed to fetch bookings" });
-//   }
-// });
 
 
 
@@ -262,31 +160,6 @@ app.delete("/book-room/:id", async (req, res) => {
 
 
 //  Update Booking Date
-// app.put("book-room/:id", async (req, res) => {
-//   const { id } = req.params;
-//   const { bookingDate } = req.body;
-
-//   if (!bookingDate) {
-//     return res.status(400).json({ error: "Booking date is required." });
-//   }
-
-//   try {
-//     const result = await bookingsCollection.updateOne(
-//       { _id: new ObjectId(id) },
-//       { $set: { bookingDate } }
-//     );
-
-//     if (result.matchedCount === 0) {
-//       return res.status(404).json({ error: "Booking not found." });
-//     }
-
-//     res.json({ message: "Booking updated successfully." });
-//   } catch (error) {
-//     console.error("Error updating booking:", error);
-//     res.status(500).json({ error: "Failed to update booking." });
-//   }
-// });
-
 
 app.put("/book-room/:id", async (req, res) => {
   const id = req.params.id;
