@@ -1,5 +1,6 @@
 
 
+
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ObjectId, ServerApiVersion } = require("mongodb");
@@ -35,7 +36,10 @@ async function run() {
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment successfully!");
 
-   
+    // Collections
+    // const roomCollection = client.db("hotel-booking").collection("hotel");
+    // const bookingCollection = roomCollection.collection("book-room");
+
 
     const db = client.db('hotel-booking')
     const roomCollection  = db.collection('hotel')
@@ -81,7 +85,10 @@ app.post("/book-room", async (req, res) => {
 
 
   try {
-   
+    // Ensure required fields are provided
+    // if (!newBooking.roomId || !newBooking.userId || !newBooking.bookingDate) {
+    //   return res.status(400).json({ message: "Missing required fields." });
+    // }
 
     // Check if a booking with the same roomId already exists
     const existingBooking = await bookingCollection.findOne({roomName: newBooking.roomName });
@@ -100,6 +107,11 @@ app.post("/book-room", async (req, res) => {
     res.status(500).json({ message: "An error occurred while booking the room." });
   }
 });
+
+
+
+
+
 
 
 
@@ -158,8 +170,6 @@ app.delete("/book-room/:id", async (req, res) => {
 });
 
 
-
-//  Update Booking Date
 
 app.put("/book-room/:id", async (req, res) => {
   const id = req.params.id;
