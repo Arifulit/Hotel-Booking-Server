@@ -26,12 +26,12 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect to MongoDB
-    await client.connect();
-    console.log("Connected to MongoDB!");
+    // await client.connect();
+    // console.log("Connected to MongoDB!");
 
     // Ping the database to confirm the connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment successfully!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment successfully!");
     const db = client.db("hotel-booking");
     const roomCollection = db.collection("hotel");
     const bookingCollection = db.collection("book-room");
